@@ -1,0 +1,56 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: airdropx-backend
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:airdropx}
+    username: ${DB_USER:airdropx}
+    password: ${DB_PASSWORD:airdropx}
+
+  jpa:
+    # Flyway owns the schema — Hibernate only validates it matches the entities, never generates DDL.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+airdropx:
+  cors:
+    allowed-origin: ${CORS_ALLOWED_ORIGIN:http://localhost:3000}
+  jwt:
+    # 32+ chars required for HS256. This default is fine for local dev only — override via env var for anything shared.
+    secret: ${JWT_SECRET:dev-only-change-me-this-is-not-a-real-secret-32chars}
+    access-token-ttl-minutes: ${JWT_ACCESS_TTL_MIN:15}
+    refresh-token-ttl-days: ${JWT_REFRESH_TTL_DAYS:7}
+  worker:
+    queue-key: airdrop:jobs:queue
+    batch-size: 10
+    # Simulated per-recipient failure rate, so PARTIALLY_COMPLETED / FAILED paths actually fire in a demo
+    # instead of only ever showing the happy path. This is the one deliberately "fake" number in the system.
+    simulated-failure-rate: ${WORKER_SIMULATED_FAILURE_RATE:0.05}
+    simulated-batch-delay-ms: ${WORKER_BATCH_DELAY_MS:400}
+    max-attempts: 3
+
+logging:
+  level:
+    com.airdropx: ${LOG_LEVEL:INFO}

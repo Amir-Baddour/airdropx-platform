@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  /* shadcn-convention tokens — any component built on these names works without extra wiring */
+  --background: #F5F6F8;
+  --foreground: #12161C;
+
+  --card: #FFFFFF;
+  --card-foreground: #12161C;
+
+  --primary: #2F5FFF;
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #EEF0F3;
+  --secondary-foreground: #12161C;
+
+  --muted: #EEF0F3;
+  --muted-foreground: #626B79;
+
+  --accent: #EAF0FF;
+  --accent-foreground: #1E3FCC;
+
+  --destructive: #C6403D;
+  --destructive-foreground: #FFFFFF;
+
+  --border: #E3E6EB;
+  --input: #E3E6EB;
+  --ring: #2F5FFF;
+
+  --radius: 0.5rem;
+
+  /* Domain-specific status colors — not part of shadcn's default set, used by <Badge status="..."> */
+  --status-draft: #8A94A6;
+  --status-info: #2F5FFF;
+  --status-pending: #B8860B;
+  --status-success: #1B8F5A;
+  --status-partial: #C77D14;
+  --status-danger: #C6403D;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-sm: calc(var(--radius) - 2px);
+
+  --color-status-draft: var(--status-draft);
+  --color-status-info: var(--status-info);
+  --color-status-pending: var(--status-pending);
+  --color-status-success: var(--status-success);
+  --color-status-partial: var(--status-partial);
+  --color-status-danger: var(--status-danger);
+
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-plex-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Bento panels are flat and bordered, deliberately — no soft drop-shadows. See README design notes. */
+.bento-panel {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+}
