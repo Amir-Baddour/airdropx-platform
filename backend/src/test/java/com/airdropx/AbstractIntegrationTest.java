@@ -64,6 +64,11 @@ public abstract class AbstractIntegrationTest {
     @Autowired protected UserRepository userRepository;
     @Autowired protected PasswordEncoder passwordEncoder;
 
+    protected static String randomIp() {
+        var rnd = java.util.concurrent.ThreadLocalRandom.current();
+        return "10." + rnd.nextInt(256) + "." + rnd.nextInt(256) + "." + (1 + rnd.nextInt(254));
+    }
+
     // ---- helpers ---------------------------------------------------------------------------------
 
     /** A registered tenant: company owner + their access/refresh tokens. */
@@ -107,6 +112,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected JsonNode send(MockHttpServletRequestBuilder req, String token, Object body, int expectedStatus) throws Exception {
+        // Each call gets its own client IP so the per-IP rate limiter on public endpoints never couples tests together.
+        req.with(r -> { r.setRemoteAddr(randomIp()); return r; });
         if (token != null) req.header("Authorization", "Bearer " + token);
         if (body != null) req.contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(body));
         MvcResult result = mvc.perform(req).andReturn();

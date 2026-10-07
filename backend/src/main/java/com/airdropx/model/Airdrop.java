@@ -51,6 +51,14 @@ public class Airdrop {
     @Builder.Default
     private AirdropStatus status = AirdropStatus.DRAFT;
 
+    // Claim system: while the airdrop is DRAFT and claimsOpen, recipients can apply via the public link.
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean claimsOpen = false;
+
+    @Column(precision = 20, scale = 8)
+    private BigDecimal claimAmount;
+
     private Instant scheduledAt;
     private Instant startedAt;
     private Instant completedAt;

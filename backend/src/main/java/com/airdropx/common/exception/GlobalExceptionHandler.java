@@ -4,7 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -55,10 +57,17 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse("INVALID_CREDENTIALS", "Email or password is incorrect", 401, req.getRequestURI()));
     }
 
-    @ExceptionHandler({MissingRequestHeaderException.class, HttpMessageNotReadableException.class})
+    @ExceptionHandler({MissingRequestHeaderException.class, HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
     public ResponseEntity<ErrorResponse> handleBadRequest(Exception e, HttpServletRequest req) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("BAD_REQUEST", "Missing or malformed request header/body", 400, req.getRequestURI()));
+    }
+
+    /** Backstop for races the service-level checks can't fully close (e.g. two simultaneous claims from one address). */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleIntegrity(DataIntegrityViolationException e, HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse("CONFLICT", "This request conflicts with existing data", 409, req.getRequestURI()));
     }
 
     @ExceptionHandler(Exception.class)

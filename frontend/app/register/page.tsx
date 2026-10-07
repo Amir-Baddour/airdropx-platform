@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { register, ApiError } from "@/lib/api";
-import { setTokens } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,9 +25,10 @@ export default function RegisterPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await register(form);
-      setTokens(res.accessToken, res.refreshToken);
-      router.push("/dashboard");
+      await register(form);
+      // Registration only creates the account. The user signs in on the login page, which is what issues
+      // the session tokens — so register → login → dashboard, never an automatic login.
+      router.push(`/login?registered=1&email=${encodeURIComponent(form.email)}`);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong. Try again.");
     } finally {

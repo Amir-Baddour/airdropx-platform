@@ -42,6 +42,9 @@ airdropx:
     secret: ${JWT_SECRET:dev-only-change-me-this-is-not-a-real-secret-32chars}
     access-token-ttl-minutes: ${JWT_ACCESS_TTL_MIN:15}
     refresh-token-ttl-days: ${JWT_REFRESH_TTL_DAYS:7}
+  claims:
+    # Per-IP cap on the public claim endpoints (fixed one-minute window, counted in Redis).
+    rate-limit-per-minute: ${CLAIMS_RATE_LIMIT_PER_MINUTE:10}
   worker:
     queue-key: airdrop:jobs:queue
     batch-size: 10

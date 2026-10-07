@@ -31,6 +31,7 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_PATHS = {
             "/api/v1/auth/**",
+            "/api/v1/public/**",
             "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**",
             "/actuator/health"
     };
@@ -43,6 +44,7 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // /me is under the public /auth/** prefix but needs a logged-in user; must come BEFORE the permitAll rule.
                 .requestMatchers("/api/v1/auth/me").authenticated()
                 .requestMatchers(PUBLIC_PATHS).permitAll()
                 .requestMatchers("/api/v1/admin/**").hasRole("PLATFORM_ADMIN")

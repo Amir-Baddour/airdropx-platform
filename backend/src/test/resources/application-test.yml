@@ -1,6 +1,8 @@
 # Test profile: deterministic worker (no random failures, fast batches). DB/Redis come from Testcontainers
 # via @DynamicPropertySource in AbstractIntegrationTest.
 airdropx:
+  claims:
+    rate-limit-per-minute: 5
   worker:
     simulated-failure-rate: 0.0
     simulated-batch-delay-ms: 20

@@ -25,6 +25,8 @@ public interface AirdropRecipientRepository extends JpaRepository<AirdropRecipie
 
     long countByAirdropId(UUID airdropId);
 
+    boolean existsByAirdropIdAndRecipientAddressIgnoreCase(UUID airdropId, String recipientAddress);
+
     // Fetches one batch of PENDING recipients for the worker to process next. Ordered by creation so
     // recipients are processed in the order they were added (keeps demo runs deterministic). The caller
     // passes PageRequest.of(0, batchSize) — standard Spring Data pagination, not a JPQL LIMIT clause,

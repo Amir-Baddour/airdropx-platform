@@ -253,6 +253,27 @@ normally, then hit `GET /api/v1/admin/dashboard`, `/companies`, `/users`, `/aird
 | **Schema exists, not wired up** | `file_metadata` / CSV upload via Firebase Storage — recipients are JSON for now |
 | **Not built** | Billing/subscriptions, email sending (password reset, notifications), an admin frontend UI (the admin *API* is fully functional — see Swagger) |
 
+## Recipient claims (manual review)
+
+Besides uploading a recipient list, a company can let people **claim** an airdrop:
+
+1. The company adds **tasks** to a DRAFT airdrop (e.g. "Follow us on X", proof required or not), sets the amount
+   each approved claimant receives, and opens claiming.
+2. Anyone with the public link (`/api/v1/public/airdrops/{id}`, no login) sees the tasks, submits their address
+   plus proof for each task, and can check their result later by address.
+3. The company reviews each claim in a queue (`/claims?status=PENDING`) and **approves or rejects** it.
+   Approval turns the claimant into a normal recipient, so validate → launch → worker → progress is the
+   existing, tested pipeline. Claim review decides only *who gets in*.
+4. `validate` freezes the list and closes claiming; approvals after that return 409.
+
+Why manual review: tasks like "like a post on Facebook" can't be verified automatically without the
+platform's API and the user's consent, so the honest design is evidence + human review.
+
+Abuse protection: one claim per address (case-insensitive, enforced by a DB unique constraint), proof
+length limits, closed/unknown airdrops all return the same 404, and the public endpoints are rate limited per
+IP (Redis, `CLAIMS_RATE_LIMIT_PER_MINUTE`, default 10). Not built: bot/captcha protection, email or wallet
+ownership verification — a real deployment would add those.
+
 ## Testing and CI
 
 The backend has **integration tests that run the whole application against real Postgres and Redis**
@@ -270,6 +291,7 @@ mvn verify          # needs Docker running (Docker Desktop on Windows)
 | `ProfileIntegrationTest` | personal profile (name/phone/address — exercises migration V11) and company profile persist |
 | `TenantIsolationIntegrationTest` | company B can't read/modify/launch company A's airdrop (404); company users blocked from `/admin`; admin blocked from `/user` |
 | `AirdropLifecycleIntegrationTest` | full create → recipients → validate → launch → worker → COMPLETED; **Idempotency-Key replay creates one job**; key reuse 409; missing key 400; double launch 409; cancel rules; totals; dashboard; audit log |
+| `ClaimsIntegrationTest` | public claim → review → approve → launch → paid; one claim per address; proof validation; reject with reason; closed claims invisible; approvals blocked after validate; tenant isolation; per-IP rate limiting (429) |
 | `WorkerRecoveryIntegrationTest` | crash recovery resumes a RUNNING job without re-paying finished recipients; gives up after max attempts; ignores stale queue messages for cancelled airdrops |
 
 The test profile (`src/test/resources/application-test.yml`) turns the simulated failure rate to 0 and

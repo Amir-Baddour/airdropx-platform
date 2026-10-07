@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { login, ApiError } from "@/lib/api";
 import { setTokens } from "@/lib/auth";
@@ -10,8 +10,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
+  // useSearchParams needs a Suspense boundary so the page can still be statically prerendered.
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const params = useSearchParams();
+  const justRegistered = params.get("registered") === "1";
+  const [email, setEmail] = useState(justRegistered ? params.get("email") ?? "" : "");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,6 +51,12 @@ export default function LoginPage() {
 
         <h1 className="mb-1 text-2xl font-semibold">Log in</h1>
         <p className="mb-6 text-muted-foreground">Manage your campaigns and see live progress.</p>
+
+        {justRegistered && (
+          <p className="mb-4 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
+            Account created. Log in to continue.
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">

@@ -128,6 +128,7 @@ class AirdropService {
             throw ApiException.badRequest("ZERO_TOTAL_AMOUNT", "Total amount must be greater than zero");
         }
 
+        airdrop.setClaimsOpen(false); // claim window closes once the recipient list is frozen
         airdrop.setStatus(AirdropStatus.READY);
         airdropRepository.save(airdrop);
         writeEvent(airdrop, EventType.VALIDATION_COMPLETED, "Validation passed — ready to launch", Map.of(
@@ -180,6 +181,7 @@ class AirdropService {
                     "Cannot cancel an airdrop in " + airdrop.getStatus() + " status");
         }
 
+        airdrop.setClaimsOpen(false);
         airdrop.setStatus(AirdropStatus.CANCELLED);
         airdropRepository.save(airdrop);
         writeEvent(airdrop, EventType.AIRDROP_CANCELLED, "Cancelled by " + actor.getEmail(), null);
