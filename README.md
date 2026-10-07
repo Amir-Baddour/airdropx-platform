@@ -266,6 +266,9 @@ Besides uploading a recipient list, a company can let people **claim** an airdro
    existing, tested pipeline. Claim review decides only *who gets in*.
 4. `validate` freezes the list and closes claiming; approvals after that return 409.
 
+**UI:** companies manage this at `/airdrops/{id}/claims` (settings, tasks, shareable link, review queue). Claimants
+use the public page `/claim/{id}` (no account): submit address and proofs, or check status by address.
+
 Why manual review: tasks like "like a post on Facebook" can't be verified automatically without the
 platform's API and the user's consent, so the honest design is evidence + human review.
 

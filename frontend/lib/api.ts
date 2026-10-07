@@ -251,3 +251,117 @@ export function cancelAirdrop(id: string) {
 export function listEvents(id: string, page = 0, size = 50) {
   return request<PageResponse<AirdropEventResponse>>(`/api/v1/user/airdrops/${id}/events?page=${page}&size=${size}`);
 }
+
+// --- Claims: company side (authenticated) ------------------------------------------------------------
+
+export interface ClaimSettings {
+  claimsOpen: boolean;
+  claimAmount: number | null;
+  taskCount: number;
+}
+
+export interface TaskResponse {
+  id: string;
+  title: string;
+  description: string | null;
+  proofRequired: boolean;
+}
+
+export interface ClaimSubmissionView {
+  taskId: string;
+  taskTitle: string;
+  proof: string | null;
+}
+
+export interface ClaimResponse {
+  id: string;
+  claimantAddress: string;
+  status: string;
+  reviewNote: string | null;
+  createdAt: string;
+  reviewedAt: string | null;
+  submissions: ClaimSubmissionView[];
+}
+
+export function getClaimSettings(id: string) {
+  return request<ClaimSettings>(`/api/v1/user/airdrops/${id}/claim-settings`);
+}
+
+export function updateClaimSettings(id: string, input: { claimsOpen: boolean; claimAmount: number | null }) {
+  return request<ClaimSettings>(`/api/v1/user/airdrops/${id}/claim-settings`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listTasks(id: string) {
+  return request<TaskResponse[]>(`/api/v1/user/airdrops/${id}/tasks`);
+}
+
+export function createTask(id: string, input: { title: string; description: string; proofRequired: boolean }) {
+  return request<TaskResponse>(`/api/v1/user/airdrops/${id}/tasks`, { method: "POST", body: JSON.stringify(input) });
+}
+
+export function deleteTask(id: string, taskId: string) {
+  return request<void>(`/api/v1/user/airdrops/${id}/tasks/${taskId}`, { method: "DELETE" });
+}
+
+export function listClaims(id: string, status: string, page = 0, size = 50) {
+  const q = status ? `&status=${status}` : "";
+  return request<PageResponse<ClaimResponse>>(`/api/v1/user/airdrops/${id}/claims?page=${page}&size=${size}${q}`);
+}
+
+export function approveClaim(id: string, claimId: string) {
+  return request<ClaimResponse>(`/api/v1/user/airdrops/${id}/claims/${claimId}/approve`, { method: "POST" });
+}
+
+export function rejectClaim(id: string, claimId: string, note: string) {
+  return request<ClaimResponse>(`/api/v1/user/airdrops/${id}/claims/${claimId}/reject`, {
+    method: "POST",
+    body: JSON.stringify({ note }),
+  });
+}
+
+// --- Claims: public side (no login; plain fetch, no Authorization header) ----------------------------
+
+export interface PublicAirdrop {
+  id: string;
+  name: string;
+  description: string | null;
+  assetType: string;
+  companyName: string;
+  claimAmount: number | null;
+  tasks: { id: string; title: string; description: string | null; proofRequired: boolean }[];
+}
+
+export interface ClaimStatusResponse {
+  claimId: string;
+  status: string;
+  reviewNote: string | null;
+}
+
+async function publicRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw await parseErrorBody(res);
+  return res.json() as Promise<T>;
+}
+
+export function getPublicAirdrop(id: string) {
+  return publicRequest<PublicAirdrop>(`/api/v1/public/airdrops/${id}`);
+}
+
+export function submitClaim(id: string, input: { address: string; submissions: { taskId: string; proof: string }[] }) {
+  return publicRequest<ClaimStatusResponse>(`/api/v1/public/airdrops/${id}/claims`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getClaimStatus(id: string, address: string) {
+  return publicRequest<ClaimStatusResponse>(
+    `/api/v1/public/airdrops/${id}/claims/status?address=${encodeURIComponent(address)}`
+  );
+}

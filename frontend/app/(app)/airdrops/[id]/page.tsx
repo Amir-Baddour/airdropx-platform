@@ -108,6 +108,9 @@ export default function AirdropDetailPage() {
         <StatusBadge status={airdrop.status} />
       </div>
       {airdrop.description && <p className="mb-6 text-muted-foreground">{airdrop.description}</p>}
+      <Link href={`/airdrops/${airdrop.id}/claims`} className="mb-6 inline-block text-sm text-primary hover:underline">
+        Manage public claims →
+      </Link>
 
       <div className="mb-8 grid grid-cols-3 gap-4">
         <MiniStat label="Asset" value={airdrop.assetType} />

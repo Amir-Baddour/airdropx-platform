@@ -12,6 +12,10 @@ const STATUS_STYLES: Record<string, string> = {
   FAILED: "bg-status-danger/10 text-status-danger",
   CANCELLED: "bg-status-draft/10 text-status-draft",
   PENDING: "bg-status-draft/10 text-status-draft",
+  APPROVED: "bg-status-success/10 text-status-success",
+  REJECTED: "bg-status-danger/10 text-status-danger",
+  OPEN: "bg-status-success/10 text-status-success",
+  CLOSED: "bg-status-draft/10 text-status-draft",
   PROCESSING: "bg-status-pending/10 text-status-pending",
   SKIPPED: "bg-status-draft/10 text-status-draft",
 };
