@@ -1,5 +1,7 @@
 # AirdropX
 
+![CI](https://github.com/Amir-Baddour/airdropx-platform/actions/workflows/ci.yml/badge.svg)
+
 A Web2 SaaS platform for managing token/points airdrop campaigns — two portals (company/client and
 platform admin), a real async job pipeline, and a Postgres schema built around multi-tenancy, an audit
 trail, and idempotent mutations.
