@@ -24,3 +24,5 @@ Thumbs.db
 *.iml
 
 test-output.txt
+
+*.log
